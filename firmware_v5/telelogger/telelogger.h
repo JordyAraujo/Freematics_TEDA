@@ -50,8 +50,13 @@ public:
     }
     virtual float calcEccentricity(float x)
     {
+        float new_ecc;
         float mean2 = (mean - x) * (mean - x);
-        float new_ecc = (1 / k) + ((mean2) / (k * variance));
+        if(mean2 == 0) {
+            new_ecc = 0;
+        } else {
+            new_ecc = (1 / k) + ((mean2) / (k * variance));
+        }
         Serial.print("new_ecc = ");
         Serial.println(new_ecc);
         return new_ecc;
