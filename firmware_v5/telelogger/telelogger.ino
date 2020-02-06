@@ -74,6 +74,8 @@ PID_LIST GPSLog[] = { // Defines which GPS PIDs would be LOGGED and their labels
 bool shouldOBDLog = SHOULD_OBD_LOG; // Defines whether OBD and
 bool shouldGPSLog = SHOULD_GPS_LOG; // GPS data should be saved on the CSV
 
+TEDACompress teda_compress;
+
 CBufferManager bufman;
 Task subtask;
 
@@ -282,7 +284,7 @@ void processOBD(CBuffer *buffer)
       for (byte j = 0; j < sizeof(PIDLog) / sizeof(PIDLog[0]); j++) {
         if (obdData[i].pid == PIDLog[j].pid && PIDLog[j].log) {
           buffer->add((uint16_t)pid | 0x100, value);
-          if(eval_point(value))
+          if(teda_compress->eval_point(value))
             buffer->add((uint16_t)pid | 0x100, value);
         }
         continue;
