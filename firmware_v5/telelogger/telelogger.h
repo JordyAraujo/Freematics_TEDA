@@ -17,24 +17,20 @@ private:
     float eccentricity = 0;
     float mean = 0;
     int window_count = 0;
-    float norm_eccentricity, outlier_threshold;
+    int time = 0;
+    float norm_eccentricity, outlier_threshold, last_value;
 
 public:
-    virtual void resetWindow()
+    virtual void resetWindow(float x)
     {
         k = 1;
         variance = 0;
         mean = 0;
         window_count = 0;
+        last_value = x;
     }
     virtual float calcMean(float x)
     {
-/*         Serial.print("calcMean k = ");
-        Serial.println(k);
-        Serial.print("calcMean x = ");
-        Serial.println(x);
-        Serial.print("calcMean mean = ");
-        Serial.println(mean); */
         float new_mean = (((k - 1) / k) * mean) + ((1 / k) * x);
         Serial.print("new_mean = ");
         Serial.println(new_mean);
@@ -52,9 +48,12 @@ public:
     {
         float new_ecc;
         float mean2 = (mean - x) * (mean - x);
-        if(mean2 == 0) {
+        if (mean2 == 0)
+        {
             new_ecc = 0;
-        } else {
+        }
+        else
+        {
             new_ecc = (1 / k) + ((mean2) / (k * variance));
         }
         Serial.print("new_ecc = ");
@@ -65,6 +64,7 @@ public:
     {
 
         int n = 1;
+        time = time + 1;
 
         if (k == 1)
         {
@@ -72,9 +72,22 @@ public:
             mean = x;
             variance = 0;
             k = k + 1;
-            return true;
+            last_value = x;
+            if (time == 1)
+                return true;
+            return false;
+        }
+        else if (x == last_value && variance == 0)
+        {
+            mean = calcMean(x);
+            variance = calcVariance(x);
+
+            k = k + 1;
+            last_value = x;
+            return false;
         }
         else
+
         {
             mean = calcMean(x);
             variance = calcVariance(x);
@@ -89,12 +102,13 @@ public:
             }
             if (window_count >= window_threshold)
             {
-                resetWindow();
+                resetWindow(x);
                 return true;
             }
             else
             {
                 k = k + 1;
+                last_value = x;
                 return false;
             }
         }
